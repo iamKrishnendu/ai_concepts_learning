@@ -1,0 +1,104 @@
+* I am building a Variational Autoencoder that learns to compress satellite images into a small numeric memory (latent vector), and from that memory it can recreate the image or even generate new similar images.
+
+Step by step understanding:
+
+1️⃣ Looks at many satellite images
+2️⃣ Learns how to summarize each image into a small “memory code” (latent vector)
+3️⃣ Learns how to recreate images from that memory
+4️⃣ Organizes all memories in a smooth structure
+5️⃣ So that random memory codes also produce realistic images
+
+
+The following major components are required to implement a VAE
+
+1️⃣ Encoder (Compressor) : Take image → convert into small numeric memory.
+
+input:
+[batch, 3, 64, 64]
+output:
+mu        → [batch, latent_dim]
+log_var   → [batch, latent_dim]
+
+Important:
+It outputs TWO things:
+
+1. mean (μ)
+2. log variance (log σ²)
+
+Because VAE learns a distribution, not a single number.
+
+You build this using:
+
+1. Conv2d layers
+2. Flatten
+3. Linear layers
+
+2️⃣ Reparameterization Trick : Convert (mu, log_var) → actual latent vector z
+
+Why?
+Because we need randomness.
+
+Formula in simple form:
+
+std = exp(0.5 * log_var)
+eps = random noise
+z = mu + std * eps
+This is required in every VAE.
+
+3️⃣ Decoder (Rebuilder) : Take latent vector z → reconstruct image
+
+input: 
+[batch, latent_dim]
+
+output:
+[batch, 3, 64, 64]
+
+To use:
+
+Linear
+Reshape
+ConvTranspose2d
+Final Sigmoid
+
+Sigmoid keeps pixels between 0 and 1.
+
+4️⃣ Custom Loss Function : VAE loss has TWO parts.
+
+* Reconstruction Loss: 
+    Measures: How close is reconstructed image to original?
+
+    code: MSE
+
+* KL Divergence: Forces latent space to behave like normal distribution.
+    Formula: KL = -0.5 * sum(1 + log_var - mu^2 - exp(log_var))
+
+    Final Loss: total_loss = recon_loss + KL
+
+5️⃣ Training Loop
+    for images in loader:
+    reconstructed, mu, log_var = model(images)
+    loss = loss_function(...)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+
+My Tasks:
+
+✔ Import libraries
+✔ Load dataset
+✔ Define Encoder class
+✔ Define Decoder class
+✔ Define VAE class
+✔ Write reparameterization function
+✔ Write custom loss
+✔ Write training loop
+✔ Plot loss
+✔ Generate random images
+✔ Perform interpolation
+✔ Do vector arithmetic
+
+One liner about VAE:
+
+To implement a VAE you need:
+Encoder + Sampling + Decoder + Custom Loss + Training Loop
